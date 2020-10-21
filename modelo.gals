@@ -1,0 +1,136 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Java
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+ScannerCaseSensitive = false
+ScannerTable = Full
+Input = Stream
+Parser = SLR
+#RegularDefinitions
+D : [0-9]
+L : [a-zA-z]
+SMC: [;]
+#Tokens
+ID : {L}( {L} | {D} )*
+":="
+"+"
+"-"
+"*"
+"/"
+"("
+")"
+"=="
+"<"
+">"
+"<="
+">="
+"!="
+"&&"
+"||"
+"{"
+"}"
+"++"
+"--"
+"'"
+NUM : {D}+
+ : [\s\t\n\r]*
+IF = ID: "if"
+THEN = ID: "then"
+ELSE = ID: "else"
+WHILE = ID: "while"
+DO = ID: "do"
+PRINT = ID: "print"
+FOR= ID: "for"
+SC: {SMC}
+BEGIN1 = ID: "begin"
+END1 = ID: "end"
+INT = ID: "int"
+DOUBLE = ID: "double"
+FLOAT = ID: "float"
+CHAR = ID: "char"
+#NonTerminals
+<PROGRAMA>
+<LISTA_INSTR>
+<ATRIB>
+<EXP>
+<OP>
+<CMD>
+<CPR>
+<VALINICIAL>
+<INCR>
+<EXPMAT>
+<EXPCOND>
+<FOR>
+<PRINT>
+<IF>
+<IFELSE>
+<DOWHILE>
+<WHILE>
+<CMD1>
+<VAR>
+<TIPO>
+<STRING>
+#Grammar
+ <PROGRAMA> ::=	<LISTA_INSTR>;
+<LISTA_INSTR> ::= <CMD> SC <LISTA_INSTR>
+	| <CMD>;
+
+// COMANDO COMEÇA E FINALIZA COM 
+<CMD> ::= "{"  <CMD1> "}" | <CMD1> <CMD> SC | î;
+<CMD1> ::= <WHILE> | <IF> | <FOR> | <PRINT> | <IFELSE> | <ATRIB>;
+
+// <STRING>: ' ID '
+<STRING> ::= "'" ID "'";
+
+// <Expressão>: Pode ser uma variável (identificador), uma string ou um número.
+<EXP> ::= ID 
+	| <STRING>
+	| NUM;
+
+// OPERADORES
+<OP> ::= "+" | "-" | "*" | "/";
+
+// operadores relacionais (<, >, <=. >=, !=, ==) ou operadores lógicos (&&, ||)
+<CPR> ::= "==" | "<" | "<=" | ">" | ">=" | "!=" | "&&" | "||";
+
+// <Valor_Inicial>: é uma variável que recebe um valor a partir de uma operação de atribuição.
+<VALINICIAL> ::= <ATRIB>;
+
+// Incremento: é uma variável que recebe uma operação de incremento aditivo ou subtrativo,
+//por exemplo: a++ ou a--.
+<INCR> ::= "++" ID | ID "++" | "--" ID | ID "--";
+
+// Identificador := Expressão Matemática (que também pode ser um único número);
+//Comando de atribuição
+<ATRIB> ::= ID ":=" <EXP>;
+
+// <EXPMAT>: Permite operações matemáticas entre número, ids e strings
+<EXPMAT> ::= <EXP> <OP> <EXP>;
+
+// COMPARAÇÃO
+<EXPCOND> ::= <EXP> <CPR> <EXP>;
+
+// for(<valor_inicial>; <expressão-condicional>; <incremento>) <Comando>
+<FOR> ::= FOR "(" <VALINICIAL>SC<EXPCOND>SC<INCR> ")" <CMD>;
+
+// print(<expressão>); 
+<PRINT> ::= PRINT "(" <EXP> ")";
+
+// <DOWHILE>: do <Comando> while (<expressão-condicional>);
+<DOWHILE> ::= DO <CMD> WHILE "(" <EXPCOND> ")";
+
+// while(<expressão-condicional>) <Comando>
+<WHILE> ::= WHILE "(" <EXPCOND> ")" <CMD>;
+
+// if (<expressão-condicional>) then <Comando> else <Comando>
+<IFELSE> ::= <IF> ELSE <CMD>;
+
+// if (<expressão-condicional>) then <Comando>
+<IF> ::=  IF "(" <EXPCOND> ")" THEN <CMD>;
+
+<VAR> ::= <TIPO> ID;
+
+<TIPO> ::= INT | DOUBLE | FLOAT | CHAR;
